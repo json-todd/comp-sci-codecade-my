@@ -4,18 +4,16 @@ class Cache(Memory):
   def __init__(self):
     super().__init__(name="Cache", access_time=0.5)
     self.main_memory = MainMemory()
+    self.size = 4
     self.fifo_index = 0
     self.cache_hit = 0
     self.cache_miss = 0 
     
     self.data = [
-      {"tag": None, "data": ""},
-      {"tag": None, "data": ""},
-      {"tag": None, "data": ""},
-      {"tag": None, "data": ""},
+      {"tag": None, "data": ""} for _ in range(self.size)
     ]
 
-  def read(self, address):
+  def read(self, address: int):
     super().read()
     data = None
     entry = self.get_entry(address)
@@ -53,7 +51,7 @@ class Cache(Memory):
 
   # Returns entry on cache hit
   # Returns None on cache miss
-  def get_entry(self, address):
+  def get_entry(self, address: int):
     for entry in self.data:
       if entry["tag"] == address:
           print(f"HIT: ", end="")
