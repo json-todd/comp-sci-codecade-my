@@ -31,7 +31,9 @@ class Memory():
 class MainMemory(Memory):
   def __init__(self):
     Memory.__init__(self, name="Main Memory", access_time=30)
-    self.data = []
+    self.data = [
+      f'hello world #{i}' for i in range(16)
+    ]
 
   # Return data from main memory address
   def read(self, address):
