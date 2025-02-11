@@ -1,13 +1,27 @@
 from memory import Memory, MainMemory
 
 class Cache(Memory):
-  def __init__(self):
+  def __init__(self, associative_set:int = 1):
     super().__init__(name="Cache", access_time=0.5)
     self.main_memory = MainMemory()
     self.size = 4
     self.fifo_index = 0
     self.cache_hit = 0
     self.cache_miss = 0 
+    
+    #TODO: able to configure cache's parameters from app.py and/or external file
+    if associative_set not in [1, 2, 4]:
+      print("Unknown policy for cache's associativity. Revert to default policy: fully associative")
+      associative_set = 1
+    self.associative_set = associative_set # Set to 1, 2 or 4
+    self.fifo_indices = [0, None, None, None]
+
+    # Sets self.fifo_indicies based on 
+    # the number of sets in the cache
+    if self.associative_set == 2:
+      self.fifo_indices = [0, 2, None, None]
+    elif self.associative_set == 4:
+      self.fifo_indices = [0, 1, 2, 3]
     
     self.data = [
       {"tag": None, "data": ""} for _ in range(self.size)
@@ -25,19 +39,28 @@ class Cache(Memory):
 
     return data
 
-  def replace_entry(self, address, data):
-    index = self.fifo_policy()
-    self.data[index] = {"tag": address, "data": data}
+  def replace_entry(self, address: int, data: str) -> None:
+    index = 0
+    set_number = address % self.associative_set
+    index = self.fifo_policy(set_number)
+    set_data =  {"tag": address, "data": data}
+    self.data[index] = set_data
 
-  def random_policy(self):
+  def random_policy(self, set_number):
     from random import randint
-    return randint(0, len(self.data)-1)
+    if self.sets == 1:
+      return randint(0, self.size-1)
+    elif self.sets == 2:
+      return randint(set_number*2, set_number*2+1)
+    
+    return set_number
 
-  def fifo_policy(self):
-    index = self.fifo_index
-    self.fifo_index += 1
-    if self.fifo_index == len(self.data):
-      self.fifo_index = 0
+  def fifo_policy(self, set_number: int):
+    index = self.fifo_indices[set_number]
+    self.fifo_indices[set_number] += 1
+    magik = self.size/self.associative_set+(set_number*int(self.size/self.associative_set))
+    if self.fifo_indices[set_number] == magik:
+      self.fifo_indices[set_number] = set_number*int(self.size/self.associative_set)
 
     return index
 
