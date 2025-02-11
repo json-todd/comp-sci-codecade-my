@@ -56,4 +56,22 @@ class TestCacheFullAssociative:
             assert cache_snapshot[read_number]["data"] == expected_content   
     
     
+class TestCache2WayAssociativity:
+    def test_read_2_elem(self, instructions_to_read_these_locations_from_main_memory):
+        cpu = CPU(cache_associative_set=2)
+        test_number_of_read = 2
         
+        # act
+        for test_read in range(test_number_of_read):
+            location_to_read_from_main_mem = instructions_to_read_these_locations_from_main_memory[test_read]
+            cpu.read(location_to_read_from_main_mem)    
+        
+        # assert
+        expected_cache_result = [
+            {'tag': 8, 'data': 'hello world #8'},
+            {'tag': None, 'data': ''},
+            {'tag': 3, 'data': 'hello world #3'},
+            {'tag': None, 'data': ''}
+        ]
+        cache_snapshot = cpu.cache.get_current_cache()
+        assert str(cache_snapshot) == str(expected_cache_result)
