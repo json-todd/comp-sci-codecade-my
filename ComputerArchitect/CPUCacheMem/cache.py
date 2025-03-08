@@ -1,15 +1,16 @@
 from memory import Memory, MainMemory
 
 class Cache(Memory):
-  def __init__(self, associative_set:int = 1):
+  def __init__(self, size:int = 4, associative_set:int = 1):
     super().__init__(name="Cache", access_time=0.5)
     self.main_memory = MainMemory()
-    self.size = 4
+    self.size = size
     self.fifo_index = 0
     self.cache_hit = 0
     self.cache_miss = 0 
     
     #TODO: able to configure cache's parameters from app.py and/or external file
+    #TODO: generalise-able with log(associative_set, 2) is an integer
     if associative_set not in [1, 2, 4]:
       print("Unknown policy for cache's associativity. Revert to default policy: fully associative")
       associative_set = 1
@@ -55,10 +56,10 @@ class Cache(Memory):
     
     return set_number
 
-  def fifo_policy(self, set_number: int):
-    index = self.fifo_indices[set_number]
+  def fifo_policy(self, set_number: int) -> int:
+    index: int = self.fifo_indices[set_number]
     self.fifo_indices[set_number] += 1
-    magik = self.size/self.associative_set+(set_number*int(self.size/self.associative_set))
+    magik:int = int(self.size/self.associative_set+(set_number*self.size/self.associative_set))
     if self.fifo_indices[set_number] == magik:
       self.fifo_indices[set_number] = set_number*int(self.size/self.associative_set)
 
@@ -101,5 +102,5 @@ class Cache(Memory):
   def _count_miss(self) -> None:
     self.cache_miss += 1
     
-  def get_cache_miss(self) -> None:
+  def get_cache_miss(self) -> int:
     return self.cache_miss
