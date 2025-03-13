@@ -1,0 +1,1 @@
+Study Computer Science through Codecademy. Adding flavour of software testing.
